@@ -3,7 +3,7 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    avatar = models.FileField(upload_to='avatars/', null=True, blank=True)
     timezone = models.CharField(max_length=50, default='Europe/Kyiv')
     weight = models.PositiveIntegerField(
         null=True,
