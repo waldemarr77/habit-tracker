@@ -186,6 +186,66 @@
             text-decoration: none;
             padding: 0.35rem 0.75rem;
             margin-right: 0.25rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .navbar-brand::before,
+        .navbar-brand::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0.35rem;
+            left: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .navbar-brand::before {
+            color: #0ff;
+            -webkit-text-fill-color: #0ff;
+            background: none;
+        }
+        .navbar-brand::after {
+            color: #f0f;
+            -webkit-text-fill-color: #f0f;
+            background: none;
+        }
+
+        .navbar-brand:hover::before {
+            opacity: 0.7;
+            animation: glitch-top 0.4s steps(1) infinite;
+        }
+        .navbar-brand:hover::after {
+            opacity: 0.7;
+            animation: glitch-bot 0.4s steps(1) infinite;
+        }
+        .navbar-brand:hover {
+            animation: glitch-main 0.4s steps(1) infinite;
+            filter: drop-shadow(0 0 8px rgba(230,57,70,0.6));
+        }
+
+        @keyframes glitch-top {
+            0%   { clip-path: inset(0 0 85% 0); transform: translate(-3px, -2px); }
+            25%  { clip-path: inset(40% 0 45% 0); transform: translate(3px, 1px); }
+            50%  { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 2px); }
+            75%  { clip-path: inset(20% 0 70% 0); transform: translate(2px, -1px); }
+            100% { clip-path: inset(0 0 85% 0); transform: translate(-3px, -2px); }
+        }
+        @keyframes glitch-bot {
+            0%   { clip-path: inset(80% 0 0 0); transform: translate(3px, 2px); }
+            25%  { clip-path: inset(50% 0 30% 0); transform: translate(-3px, -1px); }
+            50%  { clip-path: inset(10% 0 75% 0); transform: translate(2px, -2px); }
+            75%  { clip-path: inset(60% 0 20% 0); transform: translate(-2px, 1px); }
+            100% { clip-path: inset(80% 0 0 0); transform: translate(3px, 2px); }
+        }
+        @keyframes glitch-main {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 1px); }
+            94% { transform: translate(2px, -1px); }
+            96% { transform: translate(-1px, 2px); }
+            98% { transform: translate(1px, -2px); }
         }
 
         .navbar-divider {
@@ -448,29 +508,25 @@
 </head>
 <body>
 
+    {% block navbar %}
     <!-- NAVBAR — Floating Island -->
     <div class="navbar-island-wrapper">
         <nav class="navbar">
-            <a href="/" class="navbar-brand">⚡ HabitFlow</a>
+            <a href="/" class="navbar-brand" data-text="⚡ HabitFlow">⚡ HabitFlow</a>
             <div class="navbar-divider"></div>
             <ul class="navbar-links">
                 {% if request.user.is_authenticated %}
                     <li><a href="/habits/" class="nav-link">Мої звички</a></li>
                     <li><a href="/habits/statistics/" class="nav-link">Статистика</a></li>
                     <li><a href="/profile/" class="nav-link">Профіль</a></li>
-                    <li>
-                        <button class="theme-toggle" id="themeToggle" title="Змінити тему">🌙</button>
-                    </li>
                 {% else %}
                     <li><a href="/login/" class="nav-link">Увійти</a></li>
-                    <li>
-                        <button class="theme-toggle" id="themeToggle" title="Змінити тему">🌙</button>
-                    </li>
                     <li><a href="/register/" class="btn btn-primary">Реєстрація</a></li>
                 {% endif %}
             </ul>
         </nav>
     </div>
+    {% endblock navbar %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -539,6 +595,7 @@
     </script>
 
     <!-- MESSAGES -->
+    {% block global_messages %}
     {% if messages %}
         <div class="container" style="margin-top: 1rem;">
             {% for message in messages %}
@@ -548,6 +605,7 @@
             {% endfor %}
         </div>
     {% endif %}
+    {% endblock global_messages %}
 
     <!-- MAIN CONTENT -->
     <main>
