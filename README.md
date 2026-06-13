@@ -1,5 +1,9 @@
 # HabitFlow ⚡
 
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-habitflow--w64i.onrender.com-e63946?style=for-the-badge)](https://habitflow-w64i.onrender.com)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Django](https://img.shields.io/badge/Django-4.2-092E20?style=for-the-badge&logo=django&logoColor=white)](https://djangoproject.com)
+
 ![HabitFlow Banner](https://via.placeholder.com/1200x400/1e0505/e63946?text=HabitFlow+-+Premium+Habit+Tracker)
 
 HabitFlow is a premium, high-performance habit tracking web application built with Python and Django. It abandons traditional spreadsheet-like interfaces in favor of a stunning, game-like, cyberpunk/samurai aesthetic. It focuses strictly on consistency (Streaks) rather than complex percentages, motivating users to "never break the chain."
