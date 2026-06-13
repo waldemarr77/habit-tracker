@@ -9,7 +9,7 @@ class HabitCheckIn(models.Model):
         verbose_name='Звичка'
     )
 
-    date = models.DateField(verbose_name='Дата')
+    date = models.DateField(db_index=True, verbose_name='Дата')
     is_completed = models.BooleanField(default=True, verbose_name='Виконано')
     note = models.TextField(blank=True, verbose_name='Нотатка')
     created_at = models.DateTimeField(auto_now_add=True)

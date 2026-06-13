@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ habit.title }} — HabitFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-bg-glow {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: -1; overflow: hidden; pointer-events: none;
+        background-color: #1a1a2e;
+    }
+    
+    .bg-video {
+        position: absolute;
+        top: 50%; left: 50%;
+        min-width: 100%; min-height: 100%;
+        width: auto; height: auto;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+    }
+
+    .bg-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(30, 5, 5, 0.6) 0%, rgba(20, 2, 2, 0.95) 100%);
+        z-index: 1;
+    }
+
+    /* Glassmorphism for cards */
+    .card {
+        background: rgba(20, 20, 24, 0.65) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- АНІМОВАНИЙ ЖИВИЙ ФОН -->
+<div class="detail-bg-glow">
+    <video autoplay loop muted playsinline class="bg-video">
+        <source src="/static/img/live_bg.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+</div>
+
+<div class="container" style="position: relative; z-index: 2;">
+
+    <!-- BACK BUTTON -->
+    <a href="/habits/" style="color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+        ← Назад до звичок
+    </a>
+
+    <!-- HABIT HEADER -->
+    <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid {{ habit.color }};">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span style="font-size: 3rem;">{{ habit.icon }}</span>
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin-top: 0.5rem;">{{ habit.title }}</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.3rem;">{{ habit.description }}</p>
+                <div style="margin-top: 0.8rem; display: flex; gap: 0.5rem;">
+                    <span class="badge badge-success">{{ habit.frequency }}</span>
+                    <span class="badge badge-warning">{{ habit.target_days }} днів</span>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="/habits/{{ habit.id }}/edit/" class="btn btn-outline">✏️ Редагувати</a>
+                <form method="POST" action="/habits/{{ habit.id }}/delete/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" style="width: 100%;"
+                        onclick="return confirm('Видалити цю звичку?')">
+                        🗑️ Видалити
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKIN FORM -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <h2 style="font-weight: 700; margin-bottom: 1rem;">✅ Відмітити виконання</h2>
+        <form method="POST" action="/habits/{{ habit.id }}/checkin/">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Нотатка (необов'язково)</label>
+                <input type="text" name="note" class="form-input" placeholder="Як пройшло?">
+            </div>
+            <button type="submit" class="btn btn-primary">✓ Виконав сьогодні</button>
+        </form>
+    </div>
+
+    <!-- CHECKIN HISTORY -->
+    <div class="card">
+        <h2 style="font-weight: 700; margin-bottom: 1rem;">📅 Історія виконань</h2>
+        {% if checkins %}
+            <div style="display: flex; flex-direction: column; gap: 0.7rem;">
+                {% for checkin in checkins %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <div>
+                        <span style="font-weight: 600;">{{ checkin.date }}</span>
+                        {% if checkin.note %}
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.2rem;">{{ checkin.note }}</p>
+                        {% endif %}
+                    </div>
+                    <span class="badge badge-success">✓ Виконано</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">
+                Поки немає відміток. Виконай звичку першого разу! 💪
+            </p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

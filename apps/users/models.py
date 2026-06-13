@@ -5,6 +5,11 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     timezone = models.CharField(max_length=50, default='Europe/Kyiv')
+    weight = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Вага (кг)'
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

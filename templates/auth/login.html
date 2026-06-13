@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Увійти — HabitFlow{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card" style="width: 100%; max-width: 420px;">
+
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 800;" class="gradient-text">Вітаємо назад! 👋</h1>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Введи свої дані щоб увійти</p>
+        </div>
+
+        <form method="POST" action="/login/">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Email або нікнейм</label>
+                <input type="text" name="username" class="form-input" placeholder="vasya@gmail.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Пароль</label>
+                <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                Увійти →
+            </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary);">
+            Ще немає акаунту? <a href="/register/" style="color: var(--primary); font-weight: 600;">Зареєструватись</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

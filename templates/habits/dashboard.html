@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+
+{% block title %}Мої звички — HabitFlow{% endblock %}
+
+{% block extra_css %}
+    /* ── КОЛЬОРИ З МАКЕТУ ── */
+    :root {
+        --mockup-bg: #121212;
+        --mockup-card: #222225;
+        --mockup-card-border: #333336;
+        --mockup-text: #f4f4f5;
+        --mockup-text-muted: #8b8b93;
+        --mockup-pill: #2a2a2e;
+        --mockup-pill-border: #404044;
+    /* ── ЖИВИЙ ЧЕРВОНИЙ ФОН (CSS) ── */
+    .dash-bg-glow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        background: linear-gradient(135deg, #1e0505 0%, #30080a 50%, #1a0204 100%);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .glow-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.3;
+        animation: floatOrb 20s infinite alternate ease-in-out;
+    }
+    .orb-1 {
+        width: 600px; height: 600px;
+        background: #e63946;
+        top: -10%; left: -10%;
+    }
+    .orb-2 {
+        width: 500px; height: 500px;
+        background: #900c19;
+        bottom: -10%; right: -10%;
+        animation-delay: -10s;
+    }
+    
+    @keyframes floatOrb {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(15%, 15%) scale(1.3); }
+    }
+
+    .dashboard-container {
+        max-width: 1000px;
+        margin: 0 auto; /* Знову по центру! */
+        padding: 3rem 1.5rem 6rem;
+        /* Apple-подібний шрифт з макету */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── HEADER ── */
+    .dash-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .dash-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--mockup-text);
+        margin: 0;
+        margin-bottom: 0.3rem;
+        letter-spacing: -0.03em;
+    }
+
+    .dash-subtitle {
+        font-size: 1.1rem;
+        color: var(--mockup-text-muted);
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-create {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #ffffff;
+        padding: 0.8rem 1.6rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-create:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-create:active {
+        transform: translateY(0);
+    }
+
+    /* ── STATS ROW (4 КАДРКИ ЯК НА СКРІНІ) ── */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-box {
+        background: rgba(20, 20, 24, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 120px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        font-size: 0.85rem;
+        color: var(--mockup-text-muted);
+        font-weight: 600;
+    }
+
+    .stat-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--mockup-text);
+        line-height: 1;
+        margin-top: 1rem;
+    }
+
+    .stat-value.green { color: #4ade80; }
+    .stat-value span { font-size: 1rem; font-weight: 600; color: var(--mockup-text-muted); }
+
+    /* ── HABITS LIST ── */
+    .habits-header {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--mockup-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .habits-list-wrapper {
+        background: rgba(20, 20, 24, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .habit-row {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .habit-row:last-child {
+        border-bottom: none;
+    }
+
+    .habit-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Іконка */
+    .habit-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    /* Інфо */
+    .habit-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .habit-name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--mockup-text);
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .habit-desc {
+        font-size: 0.85rem;
+        color: var(--mockup-text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Дні тижня (Pills) */
+    .habit-days {
+        display: flex;
+        gap: 0.4rem;
+        margin-right: 2rem;
+    }
+
+    .day-pill {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        border: 1px solid var(--mockup-pill-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--mockup-text-muted);
+        background: transparent;
+    }
+
+    /* Чекбокс (Кнопка) */
+    .habit-actions {
+        margin-left: 2rem;
+    }
+    
+    .habit-actions form {
+        margin: 0;
+    }
+
+    .btn-check {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 2px solid var(--mockup-text-muted);
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 0;
+        color: var(--mockup-bg);
+    }
+
+    .btn-check svg {
+        opacity: 0;
+        width: 22px;
+        height: 22px;
+    }
+
+    .btn-check:hover {
+        border-color: #fff;
+    }
+
+    .btn-check.checked {
+        border: none;
+    }
+    
+    .btn-check.checked svg {
+        opacity: 1;
+    }
+
+    /* Світла тема - адаптація */
+    [data-theme="light"] .habits-list-wrapper, 
+    [data-theme="light"] .stat-box {
+        background: #ffffff;
+        border-color: #e5e7eb;
+    }
+    [data-theme="light"] .habit-row { border-color: #e5e7eb; }
+    [data-theme="light"] .dash-title, 
+    [data-theme="light"] .stat-value, 
+    [data-theme="light"] .habit-name { color: #111827; }
+    [data-theme="light"] .day-pill { border-color: #d1d5db; color: #6b7280; }
+    [data-theme="light"] .dash-bg-glow { background: #f3f4f6; }
+
+    @media (max-width: 900px) {
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+{% endblock %}
+
+{% block content %}
+<!-- АНІМОВАНИЙ ЖИВИЙ ФОН -->
+<div class="dash-bg-glow">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+</div>
+
+<div class="dashboard-container">
+
+    <!-- HEADER ЯК НА МАКЕТІ -->
+    <div class="dash-header">
+        <div>
+            <h1 class="dash-title">З поверненням, {{ request.user.username }}! 👋</h1>
+            <p class="dash-subtitle">Зробимо цей день продуктивним.</p>
+        </div>
+        
+        <div class="header-actions">
+            <a href="/habits/create/" class="btn-create">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Додати звичку
+            </a>
+        </div>
+    </div>
+
+    <!-- СТАТИСТИКА (4 БЛОКИ ЯК НА МАКЕТІ) -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-top">
+                <span>Серія днів</span>
+                <span style="color: #f97316; font-size: 1.1rem;">🔥</span>
+            </div>
+            <div class="stat-value green">
+                {{ current_streak }} <span style="color: #4ade80;">Днів</span>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-top">
+                <span>На сьогодні</span>
+                <span style="color: #4ade80; font-size: 1.1rem;">✅</span>
+            </div>
+            <div class="stat-bottom" style="width: 100%;">
+                <div style="font-size: 1.2rem; font-weight: 700; color: var(--mockup-text);">
+                    {{ completed_today }}/{{ total_habits }} <br>
+                    <span style="font-size: 0.8rem; font-weight: 500; color: var(--mockup-text-muted);">Виконано</span>
+                </div>
+                <div style="position: relative; width: 46px; height: 46px;">
+                    <svg width="46" height="46" viewBox="0 0 46 46" style="transform: rotate(-90deg);">
+                        <circle cx="23" cy="23" r="19" fill="none" stroke="#333336" stroke-width="4"></circle>
+                        <circle cx="23" cy="23" r="19" fill="none" stroke="#4ade80" stroke-width="4" stroke-linecap="round" style="stroke-dasharray: 119.38; stroke-dashoffset: calc(119.38 - (119.38 * {% if total_habits > 0 %}{{ completed_today }} / {{ total_habits }}{% else %}0{% endif %})); transition: stroke-dashoffset 1s ease;"></circle>
+                    </svg>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--mockup-text);">
+                        {% if total_habits > 0 %}{% widthratio completed_today total_habits 100 %}%{% else %}0%{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-top">
+                <span>Ідеальні дні</span>
+                <span style="color: #3b82f6; font-size: 1.1rem;">⭐</span>
+            </div>
+            <div class="stat-bottom" style="flex-direction: column; align-items: flex-start; gap: 0.8rem; width: 100%; margin-top: 0.5rem;">
+                <div style="font-size: 1.2rem; font-weight: 700; color: var(--mockup-text);">{{ perfect_days }} <span style="font-size: 0.8rem; font-weight: 500; color: var(--mockup-text-muted);">В цьому місяці</span></div>
+                <div style="display: flex; align-items: flex-end; gap: 4px; height: 35px; width: 100%;">
+                    <div style="flex: 1; background: #3b82f6; height: 40%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 60%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 30%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 90%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 50%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 40%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 100%; border-radius: 2px 2px 0 0;"></div>
+                    <div style="flex: 1; background: #3b82f6; height: 60%; border-radius: 2px 2px 0 0;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-top">
+                <span>Тижнева ціль</span>
+                <span style="color: #eab308; font-size: 1.1rem;">🏆</span>
+            </div>
+            <div class="stat-bottom" style="flex-direction: column; align-items: flex-start; gap: 0.8rem; width: 100%; margin-top: 0.5rem;">
+                <div style="font-size: 1.2rem; font-weight: 700; color: var(--mockup-text);">{{ weekly_percentage }}% <span style="font-size: 0.8rem; font-weight: 500; color: var(--mockup-text-muted);">Виконано</span></div>
+                <div style="width: 100%; height: 35px;">
+                    <svg viewBox="0 0 100 35" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
+                        <path d="M0,25 C10,20 20,30 30,20 C40,10 50,20 60,5 C70,-5 80,10 90,0 L100,-5" fill="none" stroke="#4ade80" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"></path>
+                        <path d="M0,25 C10,20 20,30 30,20 C40,10 50,20 60,5 C70,-5 80,10 90,0 L100,-5 L100,35 L0,35 Z" fill="url(#line-grad)" opacity="0.3"></path>
+                        <defs>
+                            <linearGradient id="line-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#4ade80"></stop>
+                                <stop offset="100%" stop-color="transparent"></stop>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HABITS LIST HEADER -->
+    <div class="habits-header" id="hero-date">
+        ЗВИЧКИ НА СЬОГОДНІ
+    </div>
+
+    <!-- HABITS LIST (УНІФІКОВАНИЙ БЛОК) -->
+    <div class="habits-list-wrapper">
+        {% if habits %}
+            {% for habit in habits %}
+            <div class="habit-row">
+                
+                <!-- Іконка (квадратна з фоном) -->
+                <div class="habit-icon" style="background: {{ habit.color }}25; color: {{ habit.color }};">
+                    {{ habit.icon }}
+                </div>
+
+                <!-- Інфо -->
+                <a href="/habits/{{ habit.id }}/" style="flex: 1; min-width: 0; text-decoration: none;">
+                    <div class="habit-info">
+                        <div class="habit-name">{{ habit.title }}</div>
+                        <div class="habit-desc">{{ habit.description|default:"Немає опису" }}</div>
+                    </div>
+                </a>
+
+                <!-- Дні тижня (Динамічні) -->
+                <div class="habit-days">
+                    {% for day in habit.week_days %}
+                        {% if day.completed %}
+                            <div class="day-pill" style="background: {{ habit.color }}; color: #121212; border-color: {{ habit.color }};">
+                                {{ day.letter }}
+                            </div>
+                        {% else %}
+                            <div class="day-pill">
+                                {{ day.letter }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Чекбокс -->
+                <div class="habit-actions">
+                    <form method="POST" action="/habits/{{ habit.id }}/checkin/">
+                        {% csrf_token %}
+                        {% if habit.is_completed_today %}
+                            <!-- Виконана звичка -->
+                            <button type="submit" class="btn-check checked" style="background: {{ habit.color }}; border-color: {{ habit.color }}; color: #121212;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        {% else %}
+                            <!-- Не виконана звичка -->
+                            <button type="submit" class="btn-check">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- ПУСТИЙ СТАН -->
+            <div style="text-align: center; padding: 4rem 2rem;">
+                <span style="font-size: 3rem; opacity: 0.5; display: block; margin-bottom: 1rem;">🪴</span>
+                <p style="color: var(--mockup-text-muted); margin-bottom: 1.5rem;">У тебе ще немає звичок. Час додати першу!</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+    // Встановлення дати
+    const now = new Date();
+    const options = { month: 'long', day: 'numeric', year: 'numeric' };
+    const dateStr = now.toLocaleDateString('uk-UA', options);
+    document.getElementById('hero-date').textContent = "ЗВИЧКИ НА СЬОГОДНІ (" + dateStr + ")";
+</script>
+{% endblock %}

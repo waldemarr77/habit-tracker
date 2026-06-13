@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Нова звичка — HabitFlow{% endblock %}
+
+{% block extra_css %}
+    .form-container {
+        max-width: 650px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 6rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.25s ease;
+    }
+    
+    .back-link:hover { 
+        color: var(--text-primary); 
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateX(-4px);
+    }
+
+    .back-link svg {
+        transition: transform 0.25s ease;
+    }
+
+    .back-link:hover svg {
+        transform: translateX(-3px);
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.4rem;
+        color: var(--text-primary);
+    }
+    
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .clean-form-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
+        padding: 2.5rem;
+    }
+
+    .clean-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1.2rem;
+    }
+    
+    .form-row > .clean-group {
+        flex: 1;
+        margin-bottom: 1.5rem;
+    }
+
+    .clean-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.6rem;
+    }
+
+    .clean-input {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        color: var(--text-primary);
+        font-family: var(--font);
+        font-size: 1rem;
+        transition: border-color 0.2s, background 0.2s;
+    }
+    
+    .clean-input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .clean-input::placeholder {
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    input[type="color"].clean-input {
+        padding: 0;
+        height: 52px;
+        cursor: pointer;
+        overflow: hidden;
+        background: transparent;
+    }
+
+    input[type="color"].clean-input::-webkit-color-swatch-wrapper {
+        padding: 4px;
+    }
+
+    input[type="color"].clean-input::-webkit-color-swatch {
+        border: none;
+        border-radius: 10px;
+    }
+
+    input[type="color"].clean-input::-moz-color-swatch {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        margin-top: 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-family: var(--font);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Випадаючий список */
+    select.clean-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding-right: 2.5rem;
+    }
+    
+    select.clean-input option {
+        background: #1a1a2e; /* Темний фон для опцій */
+        color: #ffffff;
+        padding: 0.5rem;
+    }
+
+    /* ── LIGHT THEME ── */
+    [data-theme="light"] .clean-form-card { 
+        background: rgba(255, 255, 255, 0.6); 
+        border-color: rgba(0, 0, 0, 0.06); 
+    }
+    [data-theme="light"] .clean-input { 
+        background: rgba(0, 0, 0, 0.02); 
+        border-color: rgba(0, 0, 0, 0.08); 
+        color: var(--text-primary);
+    }
+    [data-theme="light"] .clean-input:focus { 
+        background: rgba(0, 0, 0, 0.04); 
+        border-color: rgba(0, 0, 0, 0.2); 
+    }
+    [data-theme="light"] .clean-input::placeholder {
+        color: rgba(0, 0, 0, 0.3);
+    }
+    [data-theme="light"] select.clean-input {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    }
+    [data-theme="light"] select.clean-input option {
+        background: #ffffff;
+        color: #000000;
+    }
+    [data-theme="light"] .btn-submit { 
+        background: var(--text-primary); 
+        color: white; 
+    }
+    [data-theme="light"] .back-link {
+        background: rgba(0, 0, 0, 0.03);
+        border-color: rgba(0, 0, 0, 0.08);
+    }
+    [data-theme="light"] .back-link:hover {
+        background: rgba(0, 0, 0, 0.06);
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+    
+    @media (max-width: 600px) {
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        .clean-form-card {
+            padding: 1.5rem;
+        }
+    }
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+
+    <a href="/habits/" class="back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Назад до списку
+    </a>
+
+    <h1 class="page-title">Створити звичку</h1>
+    <p class="page-subtitle">Додай нову звичку, щоб відслідковувати свій прогрес щодня.</p>
+
+    <div class="clean-form-card">
+        <form method="POST" action="/habits/create/">
+            {% csrf_token %}
+
+            <div class="clean-group">
+                <label class="clean-label">Назва звички *</label>
+                <input type="text" name="title" class="clean-input" placeholder="Наприклад: Читати книгу, Тренування, Медитація" required>
+            </div>
+
+            <div class="clean-group">
+                <label class="clean-label">Опис (необов'язково)</label>
+                <input type="text" name="description" class="clean-input" placeholder="Мінімум 20 сторінок">
+            </div>
+
+            <div class="form-row">
+                <div class="clean-group">
+                    <label class="clean-label">Іконка (Емодзі)</label>
+                    <input type="text" name="icon" class="clean-input" placeholder="📚" value="⭐">
+                </div>
+                <div class="clean-group">
+                    <label class="clean-label">Колір</label>
+                    <input type="color" name="color" class="clean-input" value="#667eea">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="clean-group">
+                    <label class="clean-label">Регулярність</label>
+                    <select name="frequency" class="clean-input">
+                        <option value="daily">Щодня</option>
+                        <option value="weekly">Щотижня</option>
+                        <option value="monthly">Щомісяця</option>
+                    </select>
+                </div>
+                <div class="clean-group">
+                    <label class="clean-label">Ціль (днів)</label>
+                    <input type="number" name="target_days" class="clean-input" value="21" min="1" max="365">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Зберегти звичку
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
