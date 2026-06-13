@@ -64,9 +64,9 @@ def register_view(request):
         elif User.objects.filter(username=username).exists():
             messages.error(request, 'Цей нікнейм вже зайнятий. Спробуйте інший.')
         else:
-            User.objects.create_user(username=username, email=email, password=password)
-            messages.success(request, 'Аккаунт створено.')
-            return redirect('/login/')
+            user = User.objects.create_user(username=username, email=email, password=password)
+            login(request, user)
+            return redirect('/habits/')
         
     return render(request, 'auth/register.html')
     
