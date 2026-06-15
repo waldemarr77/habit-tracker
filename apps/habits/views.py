@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
 from .models import Habit
 from .serializers import HabitSerializers
 from apps.tracking.models import HabitCheckIn
@@ -48,6 +51,12 @@ def dashboard_view(request):
                 'letter': days_letters[i],
                 'completed': i in week_completed_days
             })
+
+        # Динамічний розрахунок норми води (не залежить від БД)
+        if habit.icon == '💧' and user.weight:
+            daily_ml = int(user.weight) * 35
+            daily_liters = round(daily_ml / 1000, 1)
+            habit.description = f'Денна норма: {daily_liters}л ({daily_ml}мл)'
 
     completed_today = sum(1 for h in habits if h.is_completed_today)
 
@@ -160,7 +169,7 @@ def habit_checkin_view(request, habit_id):
             messages.success(request, 'Виконано!')
         else:
             messages.error(request, 'Сьогодні вже відмічено.')
-    return redirect(f'/habits/{habit_id}/')
+    return redirect('/habits/')
 
 
 @login_required(login_url='/login/')
@@ -184,7 +193,7 @@ def habit_edit_view(request, habit_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Звичку оновлено!')
-            return redirect(f'/habits/{habit_id}/')
+            return redirect('/habits/')
         else:
             messages.error(request, 'Помилка в формі. Перевірте дані')
     
@@ -259,3 +268,17 @@ def statistics_view(request):
     }
 
     return render(request, 'habits/statistics.html', context)
+
+
+@login_required(login_url='/login/')
+@require_POST
+def habit_reorder_view(request):
+    """Saves drag-and-drop order of habits."""
+    try:
+        data = json.loads(request.body)
+        habit_ids = data.get('habit_ids', [])
+        for index, habit_id in enumerate(habit_ids):
+            Habit.objects.filter(id=int(habit_id), user=request.user).update(order=index)
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

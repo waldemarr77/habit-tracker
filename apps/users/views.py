@@ -89,17 +89,25 @@ def profile_view(request):
 
         user.save()
 
-        if user.weight:
-            from apps.habits.models import Habit
-            water_habit = Habit.objects.filter(
-                user=user,
-                icon='💧'
-            ).first()
+        # Оновлюємо норму води якщо є вага
+        try:
+            user.refresh_from_db()  # Отримуємо актуальні значення з БД (int, не рядок)
+            if user.weight:
+                from apps.habits.models import Habit
+                water_habit = Habit.objects.filter(
+                    user=user,
+                    icon='💧'
+                ).first() or Habit.objects.filter(
+                    user=user,
+                    title__icontains='Пити воду'
+                ).first()
 
-            if water_habit:
-                daily_ml, daily_liters = Habit.calculate_water_norm(int(user.weight))
-                water_habit.description = f'Денна норма: {daily_liters}л ({daily_ml}мл)'
-                water_habit.save()
+                if water_habit:
+                    daily_ml, daily_liters = Habit.calculate_water_norm(int(user.weight))
+                    water_habit.description = f'Денна норма: {daily_liters}л ({daily_ml}мл)'
+                    water_habit.save()
+        except Exception:
+            pass  # Не блокуємо збереження профілю через помилку звички
 
         messages.success(request, 'Профіль оновлено!')
 

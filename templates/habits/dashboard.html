@@ -193,29 +193,77 @@
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 16px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
+    /* Clip only visuals, not shadows */
+    .habits-list-wrapper > *:first-child { border-radius: 16px 16px 0 0; }
+    .habits-list-wrapper > *:last-child  { border-radius: 0 0 16px 16px; }
 
+    /* ── HABIT ROW — PREMIUM CARD ── */
     .habit-row {
         display: flex;
         align-items: center;
-        padding: 1rem 1.5rem;
+        padding: 1.1rem 1.5rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        transition: background 0.2s;
-        text-decoration: none;
         color: inherit;
+        cursor: pointer;
+        position: relative;
+        border-left: 3px solid transparent;
+        background: transparent;
+        transition:
+            background   0.35s ease,
+            border-color 0.35s ease,
+            box-shadow   0.35s ease,
+            transform    0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .habit-row:last-child {
-        border-bottom: none;
+    /* Gradient glow overlay (uses habit color) */
+    .habit-row::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            100deg,
+            color-mix(in srgb, var(--hc, #e63946) 14%, transparent) 0%,
+            transparent 55%
+        );
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: none;
     }
+
+    /* Arrow */
+    .habit-row::after {
+        content: '›';
+        position: absolute;
+        right: 5.5rem;
+        top: 50%;
+        transform: translateY(-50%) translateX(12px);
+        font-size: 1.5rem;
+        font-weight: 300;
+        line-height: 1;
+        color: var(--hc, var(--primary));
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        pointer-events: none;
+    }
+
+    .habit-row:last-child { border-bottom: none; }
 
     .habit-row:hover {
-        background: rgba(255, 255, 255, 0.03);
+        border-left-color: var(--hc, var(--primary));
+        transform: translateY(-2px);
+        box-shadow:
+            0 12px 35px rgba(0, 0, 0, 0.4),
+            0 0 0 1px color-mix(in srgb, var(--hc, #e63946) 20%, transparent),
+            0 4px 15px color-mix(in srgb, var(--hc, #e63946) 18%, transparent);
     }
+    .habit-row:hover::before { opacity: 1; }
+    .habit-row:hover::after  { opacity: 1; transform: translateY(-50%) translateX(0); }
+    .habit-row:active        { transform: translateY(0) scale(0.998); transition-duration: 0.1s; }
 
-    /* Іконка */
+    /* Icon — breathes when idle, bounces on hover */
     .habit-icon {
         width: 48px;
         height: 48px;
@@ -226,6 +274,79 @@
         font-size: 1.5rem;
         margin-right: 1.2rem;
         flex-shrink: 0;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    box-shadow 0.35s ease;
+        animation: iconPulse 3.5s ease-in-out infinite;
+        animation-delay: calc(var(--i, 0) * 0.5s);
+    }
+
+    @keyframes iconPulse {
+        0%,  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--hc, #e63946) 0%, transparent); }
+        50%        { box-shadow: 0 0 0 5px color-mix(in srgb, var(--hc, #e63946) 22%, transparent); }
+    }
+
+    .habit-row:hover .habit-icon {
+        transform: scale(1.22) rotate(-8deg);
+        animation-play-state: paused;
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--hc, #e63946) 40%, transparent);
+    }
+
+    /* ── SPOTLIGHT: sequential auto-highlight ── */
+    .habit-row.spotlight {
+        border-left-color: var(--hc, var(--primary));
+        transform: translateY(-3px);
+        box-shadow:
+            0 14px 40px rgba(0, 0, 0, 0.45),
+            0 0 0 1px color-mix(in srgb, var(--hc, #e63946) 25%, transparent),
+            0 4px 20px color-mix(in srgb, var(--hc, #e63946) 22%, transparent);
+        transition:
+            border-color 0.5s ease,
+            box-shadow   0.5s ease,
+            transform    0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .habit-row.spotlight::before { opacity: 1; }
+    .habit-row.spotlight .habit-icon {
+        transform: scale(1.18) rotate(-6deg);
+        animation-play-state: paused;
+        box-shadow: 0 5px 18px color-mix(in srgb, var(--hc, #e63946) 38%, transparent);
+    }
+
+    /* ── DRAG HANDLE ── */
+    .drag-handle {
+        width: 20px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.75rem;
+        cursor: grab;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        padding: 4px;
+    }
+    .drag-handle span {
+        display: block;
+        width: 14px;
+        height: 2px;
+        background: rgba(255,255,255,0.35);
+        border-radius: 2px;
+        transition: background 0.2s;
+    }
+    .habit-row:hover .drag-handle,
+    .habit-row.spotlight .drag-handle { opacity: 1; }
+    .drag-handle:hover span { background: rgba(255,255,255,0.7); }
+    .drag-handle:active { cursor: grabbing; }
+
+    .habit-row.drag-over {
+        border-left-color: var(--hc, var(--primary)) !important;
+        background: rgba(255,255,255,0.04) !important;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--hc,#e63946) 40%, transparent) !important;
+    }
+    .habit-row.dragging {
+        opacity: 0.35;
+        transform: scale(0.98);
     }
 
     /* Інфо */
@@ -271,6 +392,48 @@
         font-weight: 600;
         color: var(--mockup-text-muted);
         background: transparent;
+    }
+
+    /* ── FLAME effect on completed days ── */
+    .day-pill--done {
+        animation: flameFlicker 1.6s ease-in-out infinite;
+        animation-delay: calc(var(--d, 0) * 0.18s);
+        position: relative;
+        z-index: 0;
+    }
+
+    .day-pill--done::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 8px;
+        background: radial-gradient(
+            ellipse at 50% 120%,
+            color-mix(in srgb, var(--hc, #e63946) 70%, #ff6b00 30%) 0%,
+            color-mix(in srgb, var(--hc, #e63946) 40%, #ffaa00 60%) 40%,
+            transparent 72%
+        );
+        filter: blur(3px);
+        opacity: 0.6;
+        animation: flameGlow 1.6s ease-in-out infinite;
+        animation-delay: calc(var(--d, 0) * 0.18s);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    @keyframes flameFlicker {
+        0%,  100% { transform: scale(1)    translateY(0px); }
+        20%        { transform: scale(1.07) translateY(-1px); }
+        40%        { transform: scale(0.97) translateY(0px); }
+        60%        { transform: scale(1.05) translateY(-1.5px); }
+        80%        { transform: scale(0.99) translateY(0px); }
+    }
+
+    @keyframes flameGlow {
+        0%,  100% { opacity: 0.45; transform: scaleY(1)    scaleX(1); }
+        25%        { opacity: 0.7;  transform: scaleY(1.2)  scaleX(0.95); }
+        50%        { opacity: 0.5;  transform: scaleY(0.95) scaleX(1.05); }
+        75%        { opacity: 0.75; transform: scaleY(1.15) scaleX(0.97); }
     }
 
     /* Чекбокс (Кнопка) */
@@ -440,8 +603,14 @@
     <div class="habits-list-wrapper">
         {% if habits %}
             {% for habit in habits %}
-            <div class="habit-row">
-                
+            <div class="habit-row" data-id="{{ habit.id }}" draggable="true"
+                 style="--i: {{ forloop.counter0 }}; --hc: {{ habit.color }};"
+                 onclick="window.location='/habits/{{ habit.id }}/'">
+                <!-- Drag handle -->
+                <div class="drag-handle" onclick="event.stopPropagation()">
+                    <span></span><span></span><span></span>
+                </div>
+
                 <!-- Іконка (квадратна з фоном) -->
                 <div class="habit-icon" style="background: {{ habit.color }}25; color: {{ habit.color }};">
                     {{ habit.icon }}
@@ -459,7 +628,7 @@
                 <div class="habit-days">
                     {% for day in habit.week_days %}
                         {% if day.completed %}
-                            <div class="day-pill" style="background: {{ habit.color }}; color: #121212; border-color: {{ habit.color }};">
+                            <div class="day-pill day-pill--done" style="background: {{ habit.color }}; color: #121212; border-color: {{ habit.color }}; --d: {{ forloop.counter0 }};">
                                 {{ day.letter }}
                             </div>
                         {% else %}
@@ -472,7 +641,7 @@
 
                 <!-- Чекбокс -->
                 <div class="habit-actions">
-                    <form method="POST" action="/habits/{{ habit.id }}/checkin/">
+                    <form method="POST" action="/habits/{{ habit.id }}/checkin/" onclick="event.stopPropagation()">
                         {% csrf_token %}
                         {% if habit.is_completed_today %}
                             <!-- Виконана звичка -->
@@ -507,5 +676,104 @@
     const options = { month: 'long', day: 'numeric', year: 'numeric' };
     const dateStr = now.toLocaleDateString('uk-UA', options);
     document.getElementById('hero-date').textContent = "ЗВИЧКИ НА СЬОГОДНІ (" + dateStr + ")";
+
+    // ── Sequential spotlight: one habit at a time, every 5s ──
+    (function() {
+        const rows = Array.from(document.querySelectorAll('.habit-row'));
+        if (rows.length === 0) return;
+
+        let current = 0;
+        let paused  = false;
+        let timer   = null;
+
+        function spotlight(index) {
+            rows.forEach(r => r.classList.remove('spotlight'));
+            rows[index].classList.add('spotlight');
+        }
+
+        function next() {
+            if (paused) return;
+            spotlight(current);
+            current = (current + 1) % rows.length;
+        }
+
+        // Start after a short delay so the page settles
+        setTimeout(() => {
+            next();
+            timer = setInterval(next, 5000);
+        }, 1500);
+
+        // Pause while user is hovering any row
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                paused = true;
+                rows.forEach(r => r.classList.remove('spotlight'));
+            });
+            row.addEventListener('mouseleave', () => {
+                paused = false;
+            });
+        });
+    })();
+
+    // ── Drag & Drop reorder ──
+    (function() {
+        const list    = document.querySelector('.habits-list-wrapper');
+        const getCsrf = () => document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+        let dragged   = null;
+
+        // Only start drag when the handle is grabbed
+        list.querySelectorAll('.drag-handle').forEach(handle => {
+            handle.addEventListener('mousedown', () => {
+                handle.closest('.habit-row').setAttribute('draggable', 'true');
+            });
+        });
+
+        list.addEventListener('dragstart', e => {
+            dragged = e.target.closest('.habit-row');
+            if (!dragged) return;
+            setTimeout(() => dragged.classList.add('dragging'), 0);
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        list.addEventListener('dragend', () => {
+            if (dragged) dragged.classList.remove('dragging');
+            list.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+
+            // Save new order via AJAX
+            const ids = [...list.querySelectorAll('.habit-row')].map(r => r.dataset.id);
+            fetch('/habits/reorder/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrf(),
+                },
+                body: JSON.stringify({ habit_ids: ids }),
+            });
+            dragged = null;
+        });
+
+        list.addEventListener('dragover', e => {
+            e.preventDefault();
+            const target = e.target.closest('.habit-row');
+            if (!target || target === dragged) return;
+            list.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+            target.classList.add('drag-over');
+
+            // Reorder DOM
+            const rows   = [...list.querySelectorAll('.habit-row')];
+            const fromIdx = rows.indexOf(dragged);
+            const toIdx   = rows.indexOf(target);
+            if (fromIdx < toIdx) {
+                target.after(dragged);
+            } else {
+                target.before(dragged);
+            }
+        });
+
+        list.addEventListener('dragleave', e => {
+            const target = e.target.closest('.habit-row');
+            if (target) target.classList.remove('drag-over');
+        });
+    })();
 </script>
 {% endblock %}

@@ -52,6 +52,7 @@ class Habit(models.Model):
     )
 
     is_active = models.BooleanField(default=True, verbose_name='Активна')
+    order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -60,7 +61,7 @@ class Habit(models.Model):
     class Meta:
         verbose_name = 'Звичка'
         verbose_name_plural = 'Звички'
-        ordering = ['-created_at']
+        ordering = ['order', '-created_at']
 
     def __str__(self):
         return f'{self.icon} {self.title}'
